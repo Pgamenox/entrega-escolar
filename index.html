@@ -3,24 +3,98 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Credencial Digital de Entrega con INE</title>
+<title>Sistema de Control de Entrega Escolar</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
   body {
     background-color: #0F172A;
     min-height: 100vh;
+    padding: 20px 16px;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    padding: 16px;
+    gap: 20px;
   }
+
+  /* PANEL SUPERIOR DE BÚSQUEDA */
+  .search-panel {
+    width: 100%;
+    max-width: 480px;
+    background: #1E293B;
+    padding: 16px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    border: 1px solid #334155;
+  }
+  .search-panel h3 {
+    color: #F8FAFC;
+    font-size: 14px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .search-box {
+    display: flex;
+    gap: 8px;
+  }
+  .search-input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #475569;
+    background: #0F172A;
+    color: #FFFFFF;
+    font-size: 14px;
+    outline: none;
+  }
+  .search-input:focus {
+    border-color: #38BDF8;
+  }
+  .search-btn {
+    background: #0284C7;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .search-btn:hover { background: #0369A1; }
+
+  /* LISTA DE RESULTADOS / ACCESOS RÁPIDOS */
+  .quick-list {
+    margin-top: 10px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .quick-chip {
+    background: #334155;
+    color: #94A3B8;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .quick-chip:hover {
+    background: #38BDF8;
+    color: #0F172A;
+    font-weight: bold;
+  }
+
+  /* TARJETA DIGITAL DE ENTREGA */
   .card-container {
     width: 100%;
-    max-width: 440px;
+    max-width: 480px;
     background: #FFFFFF;
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
   }
   .header {
     background: linear-gradient(135deg, #1E3A8A, #0D9488);
@@ -43,6 +117,7 @@
     border-radius: 12px;
     font-family: monospace;
   }
+
   .student-section {
     padding: 16px 20px;
     text-align: center;
@@ -81,6 +156,7 @@
     padding: 4px 10px;
     border-radius: 6px;
   }
+
   .details-body {
     padding: 16px 20px;
   }
@@ -102,6 +178,7 @@
     color: #0F172A;
     text-align: right;
   }
+
   .auth-section-title {
     font-size: 11px;
     font-weight: 800;
@@ -113,6 +190,7 @@
     align-items: center;
     gap: 4px;
   }
+
   .auth-item {
     background: #F0FDF4;
     border: 1.5px solid #86EFAC;
@@ -136,9 +214,7 @@
   .auth-thumb:hover {
     transform: scale(1.05);
   }
-  .auth-info {
-    flex: 1;
-  }
+  .auth-info { flex: 1; }
   .auth-name {
     font-size: 13px;
     font-weight: 800;
@@ -161,6 +237,7 @@
     border-radius: 4px;
     margin-top: 4px;
   }
+
   .footer {
     background: #F8FAFC;
     padding: 10px;
@@ -170,6 +247,8 @@
     border-top: 1px solid #E2E8F0;
     font-weight: 600;
   }
+
+  /* MODAL PARA AMPLIAR INE */
   .modal {
     display: none;
     position: fixed;
@@ -194,50 +273,66 @@
 </head>
 <body>
 
-<div class="card-container">
-  <div class="header">
-    <span id="txtTag" class="tag-pill">NFC</span>
-    <h2>🏫 CONTROL DE ENTREGA</h2>
-    <p>Validación de Identidad y Salida</p>
-  </div>
-
-  <div class="student-section">
-    <div class="avatar-circle">👦</div>
-    <div id="txtNombre" class="student-name">Cargando...</div>
-    <div class="meta-chips">
-      <div id="txtGradoSec" class="chip">Grado</div>
-      <div id="txtLista" class="chip">Lista #</div>
+  <!-- PANEL DE BÚSQUEDA -->
+  <div class="search-panel">
+    <h3>🔍 Buscador Manual de Alumno</h3>
+    <div class="search-box">
+      <input type="text" id="inputBusqueda" class="search-input" placeholder="Nombre, Lista # o ID NFC (ej. 101, Mateo)...">
+      <button class="search-btn" onclick="buscarManual()">Buscar</button>
+    </div>
+    <div class="quick-list">
+      <span class="quick-chip" onclick="cargarAlumno('NFC-101')">Mateo (NFC-101)</span>
+      <span class="quick-chip" onclick="cargarAlumno('NFC-102')">Sofía (NFC-102)</span>
+      <span class="quick-chip" onclick="cargarAlumno('NFC-103')">Emiliano (NFC-103)</span>
     </div>
   </div>
 
-  <div class="details-body">
-    <div class="field-row">
-      <span class="field-label">👨 Papá</span>
-      <span id="txtPapa" class="field-value">-</span>
+  <!-- TARJETA DEL ALUMNO -->
+  <div class="card-container">
+    <div class="header">
+      <span id="txtTag" class="tag-pill">NFC</span>
+      <h2>🏫 CONTROL DE ENTREGA</h2>
+      <p>Validación de Identidad y Salida</p>
     </div>
 
-    <div class="field-row">
-      <span class="field-label">👩 Mamá</span>
-      <span id="txtMama" class="field-value">-</span>
+    <div class="student-section">
+      <div class="avatar-circle">👦</div>
+      <div id="txtNombre" class="student-name">Cargando...</div>
+      <div class="meta-chips">
+        <div id="txtGradoSec" class="chip">Grado</div>
+        <div id="txtLista" class="chip">Lista #</div>
+      </div>
     </div>
 
-    <div class="field-row">
-      <span class="field-label">📞 Tel. Contacto</span>
-      <span id="txtTel" class="field-value">-</span>
+    <div class="details-body">
+      <div class="field-row">
+        <span class="field-label">👨 Papá</span>
+        <span id="txtPapa" class="field-value">-</span>
+      </div>
+
+      <div class="field-row">
+        <span class="field-label">👩 Mamá</span>
+        <span id="txtMama" class="field-value">-</span>
+      </div>
+
+      <div class="field-row">
+        <span class="field-label">📞 Tel. Contacto</span>
+        <span id="txtTel" class="field-value">-</span>
+      </div>
+
+      <div class="auth-section-title">🟢 Personas Autorizadas (INE Verificada):</div>
+      <div id="contenedorAutorizados"></div>
     </div>
 
-    <div class="auth-section-title">🟢 Personas Autorizadas (INE Verificada):</div>
-    <div id="contenedorAutorizados"></div>
+    <div class="footer">
+      🕒 Escaneado a las <span id="txtHora">--:--</span> • Identidad Validada
+    </div>
   </div>
 
-  <div class="footer">
-    🕒 Escaneado a las <span id="txtHora">--:--</span> • Identidad Validada
+  <!-- MODAL PARA FOTO INE -->
+  <div id="modalIne" class="modal" onclick="cerrarModal()">
+    <img id="imgModal" src="" alt="Credencial INE">
   </div>
-</div>
-
-<div id="modalIne" class="modal" onclick="cerrarModal()">
-  <img id="imgModal" src="" alt="Credencial INE">
-</div>
 
 <script>
   const padron = [
@@ -309,38 +404,66 @@
     }
   ];
 
+  function mostrarDatos(alumno) {
+    if (alumno) {
+      document.getElementById('txtTag').innerText = alumno.id;
+      document.getElementById('txtNombre').innerText = alumno.nombre;
+      document.getElementById('txtGradoSec').innerText = `${alumno.grado} "${alumno.sec}"`;
+      document.getElementById('txtLista').innerText = `Lista #${alumno.lista}`;
+      document.getElementById('txtPapa').innerText = alumno.papa;
+      document.getElementById('txtMama').innerText = alumno.mama;
+      document.getElementById('txtTel').innerText = alumno.tel;
+
+      const cont = document.getElementById('contenedorAutorizados');
+      cont.innerHTML = '';
+      alumno.autorizados.forEach(aut => {
+        cont.innerHTML += `
+          <div class="auth-item">
+            <img src="${aut.ine}" class="auth-thumb" alt="INE ${aut.nombre}" title="Clic para ampliar foto" onclick="ampliarFoto('${aut.ine}')">
+            <div class="auth-info">
+              <div class="auth-name">${aut.nombre}</div>
+              <div class="auth-role">Parentesco: <b>${aut.parentesco}</b></div>
+              <span class="auth-badge">🪪 INE Registrada</span>
+            </div>
+          </div>
+        `;
+      });
+    } else {
+      document.getElementById('txtNombre').innerText = "❌ Alumno No Encontrado";
+      document.getElementById('txtGradoSec').innerText = "Sin Datos";
+      document.getElementById('txtLista').innerText = "-";
+      document.getElementById('txtPapa').innerText = "-";
+      document.getElementById('txtMama').innerText = "-";
+      document.getElementById('txtTel').innerText = "-";
+      document.getElementById('contenedorAutorizados').innerHTML = '<p style="color:#64748B; font-size:12px; text-align:center; padding:10px;">No se encontró ningún registro con ese criterio de búsqueda.</p>';
+    }
+  }
+
+  function cargarAlumno(id) {
+    const alumno = padron.find(a => a.id.toUpperCase() === id.toUpperCase());
+    mostrarDatos(alumno);
+  }
+
+  function buscarManual() {
+    const term = document.getElementById('inputBusqueda').value.trim().toLowerCase();
+    if (!term) return;
+    const encontrado = padron.find(a => 
+      a.nombre.toLowerCase().includes(term) ||
+      a.id.toLowerCase().includes(term) ||
+      a.lista === term
+    );
+    mostrarDatos(encontrado);
+  }
+
+  // Escucha presionar ENTER en la casilla de búsqueda
+  document.getElementById('inputBusqueda').addEventListener('keyup', function(e) {
+    if (e.key === 'Enter') buscarManual();
+  });
+
+  // Lectura por parámetro URL de la tarjeta NFC
   const params = new URLSearchParams(window.location.search);
   const tagBuscado = params.get('id') || 'NFC-101';
-
-  const alumno = padron.find(a => a.id.toUpperCase() === tagBuscado.toUpperCase());
-
-  if (alumno) {
-    document.getElementById('txtTag').innerText = alumno.id;
-    document.getElementById('txtNombre').innerText = alumno.nombre;
-    document.getElementById('txtGradoSec').innerText = `${alumno.grado} "${alumno.sec}"`;
-    document.getElementById('txtLista').innerText = `Lista #${alumno.lista}`;
-    document.getElementById('txtPapa').innerText = alumno.papa;
-    document.getElementById('txtMama').innerText = alumno.mama;
-    document.getElementById('txtTel').innerText = alumno.tel;
-
-    const cont = document.getElementById('contenedorAutorizados');
-    cont.innerHTML = '';
-    alumno.autorizados.forEach(aut => {
-      cont.innerHTML += `
-        <div class="auth-item">
-          <img src="${aut.ine}" class="auth-thumb" alt="INE ${aut.nombre}" title="Clic para ampliar foto" onclick="ampliarFoto('${aut.ine}')">
-          <div class="auth-info">
-            <div class="auth-name">${aut.nombre}</div>
-            <div class="auth-role">Parentesco: <b>${aut.parentesco}</b></div>
-            <span class="auth-badge">🪪 INE Registrada</span>
-          </div>
-        </div>
-      `;
-    });
-  } else {
-    document.getElementById('txtNombre').innerText = "❌ Alumno No Encontrado";
-    document.getElementById('txtGradoSec').innerText = "ID Inválido";
-  }
+  cargarAlumno(tagBuscado);
 
   const ahora = new Date();
   document.getElementById('txtHora').innerText = ahora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
