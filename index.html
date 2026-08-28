@@ -22,7 +22,6 @@
     overflow: hidden;
     box-shadow: 0 20px 40px rgba(0,0,0,0.3);
   }
-  
   .header {
     background: linear-gradient(135deg, #1E3A8A, #0D9488);
     color: white;
@@ -44,7 +43,6 @@
     border-radius: 12px;
     font-family: monospace;
   }
-
   .student-section {
     padding: 16px 20px;
     text-align: center;
@@ -83,7 +81,6 @@
     padding: 4px 10px;
     border-radius: 6px;
   }
-
   .details-body {
     padding: 16px 20px;
   }
@@ -105,7 +102,6 @@
     color: #0F172A;
     text-align: right;
   }
-
   .auth-section-title {
     font-size: 11px;
     font-weight: 800;
@@ -117,8 +113,6 @@
     align-items: center;
     gap: 4px;
   }
-
-  /* Tarjeta individual de autorizado con foto de credencial */
   .auth-item {
     background: #F0FDF4;
     border: 1.5px solid #86EFAC;
@@ -167,7 +161,6 @@
     border-radius: 4px;
     margin-top: 4px;
   }
-
   .footer {
     background: #F8FAFC;
     padding: 10px;
@@ -177,8 +170,6 @@
     border-top: 1px solid #E2E8F0;
     font-weight: 600;
   }
-
-  /* Modal para ver foto completa */
   .modal {
     display: none;
     position: fixed;
@@ -204,7 +195,6 @@
 <body>
 
 <div class="card-container">
-  
   <div class="header">
     <span id="txtTag" class="tag-pill">NFC</span>
     <h2>🏫 CONTROL DE ENTREGA</h2>
@@ -237,24 +227,19 @@
     </div>
 
     <div class="auth-section-title">🟢 Personas Autorizadas (INE Verificada):</div>
-    <div id="contenedorAutorizados">
-      <!-- Se llena dinámicamente con fotos -->
-    </div>
+    <div id="contenedorAutorizados"></div>
   </div>
 
   <div class="footer">
     🕒 Escaneado a las <span id="txtHora">--:--</span> • Identidad Validada
   </div>
-
 </div>
 
-<!-- Modal para ampliar la foto del INE -->
 <div id="modalIne" class="modal" onclick="cerrarModal()">
   <img id="imgModal" src="" alt="Credencial INE">
 </div>
 
 <script>
-  // Padrón Escolar con fotos de INE
   const padron = [
     {
       id: "NFC-101",
@@ -338,7 +323,6 @@
     document.getElementById('txtMama').innerText = alumno.mama;
     document.getElementById('txtTel').innerText = alumno.tel;
 
-    // Renderizar personas autorizadas con su foto
     const cont = document.getElementById('contenedorAutorizados');
     cont.innerHTML = '';
     alumno.autorizados.forEach(aut => {
@@ -370,12 +354,5 @@
     document.getElementById('modalIne').style.display = 'none';
   }
 </script>
-
 </body>
-</html>
-"""
-
-with open("index.html", "w", encoding="utf-8") as f:
-    f.write(html_con_ine)
-
-print("Código index.html con fotos de INE generado.")
+</html>o.")
